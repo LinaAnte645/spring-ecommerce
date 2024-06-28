@@ -2,6 +2,7 @@ package com.ecommerce.springecommerce.service;
 
 import com.ecommerce.springecommerce.model.Producto;
 
+import java.util.List;
 import java.util.Optional;
 
 //interface donde definimos los metodos crud
@@ -19,4 +20,6 @@ public interface ProductoService {
     //metodo para eliminar
     //le pasamos el id del producto a eliminar
     public void delete(Integer id);
+    //Trae una lista de productos y se llama findAll
+    public List<Producto> findAll();
 }
