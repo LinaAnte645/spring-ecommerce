@@ -8,8 +8,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import java.util.Optional;
 
 
 @Controller
@@ -44,6 +47,26 @@ public class ProductoController {
         //añadimos el usuario
         producto.setUsuario(u);
         productoService.save(producto);
+        return "redirect:/productos";
+    }
+    /*en GetMapping obtenemos el id del registro que vamos a buscar y editar
+    PathVariable mapea la variable que viene en la url y la pasa a variable que esta continua a la anotacion PathVariable
+    vamos a pasar el objeto a la vista entonces añadimos un objeto de tipo Model, al cual primero declaramos  una variable(qque lleva a la vista ) y le pasamos valor que tiene producto
+
+    * */
+    @GetMapping("/edit/{id}")
+    public String edit(@PathVariable Integer id, Model model) {
+        Producto producto = new Producto();
+        //aqui buscamos el producto
+        Optional<Producto> optionalProducto=productoService.get(id);
+        producto=optionalProducto.get();
+        LOGGER.info("Producto buscado: {}", producto);
+        model.addAttribute("producto", producto);
+        return "productos/edit";
+    }
+    @PostMapping("/update")
+    public String update(Producto producto) {
+        productoService.update(producto);
         return "redirect:/productos";
     }
 }
