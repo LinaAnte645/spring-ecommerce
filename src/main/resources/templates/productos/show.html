@@ -61,7 +61,7 @@
         <!--le decimos donde vamos apuntar y que vamos a pasarle un id, tambien le decimos que valor va a llevar el id asi
         declaramos una variable (id) que debe ser igual a la que enviamos por la url y aqui optenemos el id del producto (producto.id)-->
         <td><a  class="btn btn-warning" th:href="@{productos/edit/{id} (id=${producto.id})}">Editar</a> </td>
-        <td><a  class="btn btn-danger" href="">Eliminar</a> </td>
+        <td><a  class="btn btn-danger" th:href="@{productos/delete/{id} (id=${producto.id})}">Eliminar</a> </td>
       </tr>       
     </tbody>
   </table>
