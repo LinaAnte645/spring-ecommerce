@@ -3,15 +3,15 @@ package com.ecommerce.springecommerce.controller;
 import com.ecommerce.springecommerce.model.Producto;
 import com.ecommerce.springecommerce.model.Usuario;
 import com.ecommerce.springecommerce.service.ProductoService;
+import com.ecommerce.springecommerce.service.UploadFileService;
 import org.slf4j.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.Optional;
 
 
@@ -20,9 +20,11 @@ import java.util.Optional;
 public class ProductoController {
     //una variable de tipo logger, nos hace un logo de lo que se va ejecutando
     private final Logger LOGGER = LoggerFactory.getLogger(ProductoController.class);
-    //
+    //Autowired para inyectarla directamente a la clase ProductoController
     @Autowired
     private ProductoService productoService;
+    @Autowired
+    private UploadFileService upload;
     //direccionamos hacia la vista
     /*el objeto Model lleva informacion desde backend asi la vita
     Model (va a llevar la lista de objetos hacia la vista show)
@@ -40,12 +42,30 @@ public class ProductoController {
         return "productos/create";
     }
     @PostMapping("/save")
-    public String save(Producto producto) {
+    public String save(Producto producto,@RequestParam("img") MultipartFile file) throws IOException {
         LOGGER.info("Este e el objeto producto  {}",producto);
         //el producto requiere un usuario para ser registrado
         Usuario u = new Usuario(1, "", "", "", "", "", "", "");
         //añadimos el usuario
         producto.setUsuario(u);
+        //logica para subir la imagen al servidor y guardar en la bd
+        //validacion cunado se crea un producto
+        if(producto.getId()==null) {
+            String nombreImagen=upload.saveImage(file);
+            producto.setImagen(nombreImagen);
+        }else {
+            //se edita el producto pero no se carga la imagen
+            if(file.isEmpty()) {
+                Producto p=new Producto();
+                //optenemos la imagen que tenia
+                p=productoService.get(producto.getId()).get();
+                //se la pasamos nueva mente a producto
+                producto.setImagen(p.getImagen());
+            }else {
+                String nombreImagen=upload.saveImage(file);
+                producto.setImagen(nombreImagen);
+            }
+        }
         productoService.save(producto);
         return "redirect:/productos";
     }
