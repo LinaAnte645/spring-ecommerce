@@ -16,7 +16,7 @@ public class UploadFileService {
     //objeto de tipo MultipartFile, que es la imagen para ser guardada
     public String saveImage(MultipartFile file) throws IOException {
         //condicion para saber si file trae algo y la pasamos bytes para que pueda enviarse del cliente al servidor
-        if(file.isEmpty()) {
+        if(!file.isEmpty()) {
             //transforma la imagen en bytes
             byte  [] bytes = file.getBytes();
             //la ubicacion donde se guarda la imagen en este caso pasamos la varibale folder que tiene la ubi

@@ -25,8 +25,8 @@ public class ProductoController {
     private ProductoService productoService;
     @Autowired
     private UploadFileService upload;
-    //direccionamos hacia la vista
-    /*el objeto Model lleva informacion desde backend asi la vita
+    //Metodo donde direccionamos hacia la vista show
+    /*el objeto model lleva informacion desde backend asi la vita
     Model (va a llevar la lista de objetos hacia la vista show)
     aqui invocamos la metodo addAttribute que le pasamos 2 parametros
     1: nombre con el que vamos a recibir la informacion
@@ -37,10 +37,12 @@ public class ProductoController {
         model.addAttribute("productos",productoService.findAll());
         return "productos/show";
     }
+    //Metodo donde direccionamos a la vista create
     @GetMapping("/create")
     public String create() {
         return "productos/create";
     }
+    //metodo para guardar un producto
     @PostMapping("/save")
     public String save(Producto producto,@RequestParam("img") MultipartFile file) throws IOException {
         LOGGER.info("Este e el objeto producto  {}",producto);
@@ -49,27 +51,16 @@ public class ProductoController {
         //añadimos el usuario
         producto.setUsuario(u);
         //logica para subir la imagen al servidor y guardar en la bd
-        //validacion cunado se crea un producto
+        //validacion cuando la imagen sea cargada por primera vez
         if(producto.getId()==null) {
             String nombreImagen=upload.saveImage(file);
             producto.setImagen(nombreImagen);
-        }else {
-            //se edita el producto pero no se carga la imagen
-            if(file.isEmpty()) {
-                Producto p=new Producto();
-                //optenemos la imagen que tenia
-                p=productoService.get(producto.getId()).get();
-                //se la pasamos nueva mente a producto
-                producto.setImagen(p.getImagen());
-            }else {
-                String nombreImagen=upload.saveImage(file);
-                producto.setImagen(nombreImagen);
-            }
         }
         productoService.save(producto);
         return "redirect:/productos";
     }
-    /*en GetMapping obtenemos el id del registro que vamos a buscar y editar
+    /*Metodo donde direccionamos  a la vista edit(editar un producto)
+    en GetMapping obtenemos el id del registro que vamos a buscar y editar
     PathVariable mapea la variable que viene en la url y la pasa a variable que esta continua a la anotacion PathVariable
     vamos a pasar el objeto a la vista entonces añadimos un objeto de tipo Model, al cual primero declaramos  una variable(qque lleva a la vista ) y le pasamos valor que tiene producto
 
@@ -84,13 +75,43 @@ public class ProductoController {
         model.addAttribute("producto", producto);
         return "productos/edit";
     }
+    //Metodo para actualizar
     @PostMapping("/update")
-    public String update(Producto producto) {
+    public String update(Producto producto, @RequestParam("img") MultipartFile file) throws IOException {
+        Producto p=new Producto();
+        //optenemos el producto, el ultimo get() es para que nos retorne el registro del producto
+        p=productoService.get(producto.getId()).get();
+        //se edita el producto pero no se carga la imagen por medio del cliente
+        if(file.isEmpty()) {
+
+            //se la pasamos nuevamente al producto que estamos editando
+            producto.setImagen(p.getImagen());
+            //se edita la imagen por medio del cliente, pero hay que eliminar la imagen por defecto
+        }else {
+            //eliminar cuando no sea la imagen por defecto
+            if(!p.getImagen().equals("default.jpg")) {
+                //elimina la imagen le pasamos el objeto que hemos optenido
+                upload.deleteImage(p.getImagen());
+            }
+            String nombreImagen=upload.saveImage(file);
+            producto.setImagen(nombreImagen);
+        }
+        producto.setUsuario(p.getUsuario());
         productoService.update(producto);
         return "redirect:/productos";
     }
+    //Medoto para eliminar
     @GetMapping("/delete/{id}")
     public String delete(@PathVariable Integer id) {
+        //eliminar la imagen
+        Producto p = new Producto();
+        //el ultimo get() es para que nos retorne el registro del producto
+        p=productoService.get(id).get();
+        //eliminar cuando no sea la imagen por defecto
+        if(!p.getImagen().equals("default.jpg")) {
+            //elimina la imagen le pasamos el objeto que hemos optenido
+            upload.deleteImage(p.getImagen());
+        }
         productoService.delete(id);
         return "redirect:/productos";
     }
