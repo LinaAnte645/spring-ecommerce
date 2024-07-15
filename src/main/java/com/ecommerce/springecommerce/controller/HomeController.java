@@ -23,7 +23,7 @@ public class HomeController {
     //objeto para obtener todos los productos
     @Autowired
     private ProductoService productoService;
-    /*lista para almacenar los detalles de la orden*/
+    /*lista para almacenar los detalles de la orden(el carrito)*/
     List<DetalleOrden> detalles = new ArrayList<DetalleOrden>();
     //datos de la orden
     Orden orden = new Orden();
@@ -63,8 +63,15 @@ public class HomeController {
         detalleOrden.setTotal(producto.getPrecio() * cantidad);
         //poner el id
         detalleOrden.setProducto(producto);
-        //añadir cada producto a la lista
-        detalles.add(detalleOrden);
+        //validar que el producto no se añada mas de una vez
+        Integer idProducto = producto.getId();
+        //funcion tipo landa que funciona como un for, nos ayuda a verificar si el id añadido ya se encuentra en la lista
+        boolean ingresado=detalles.stream().anyMatch(p -> p.getProducto().getId()==idProducto);
+        if(!ingresado) {
+            //añadir cada producto a la lista
+            detalles.add(detalleOrden);
+        }
+
         //sumar el total de los productos que añada al carrito, utilizamos una funcion landa,
         sumaTotal = detalles.stream().mapToDouble(dt -> dt.getTotal()).sum();
         orden.setTotal(sumaTotal);
@@ -92,6 +99,13 @@ public class HomeController {
         model.addAttribute("cart", detalles);
         model.addAttribute("orden", orden);
         return "usuario/carrito";
+    }
+    //metodo
+    @GetMapping("/getCart")
+    public String getCart(Model model) {
+        model.addAttribute("cart", detalles);
+        model.addAttribute("orden", orden);
+        return "/usuario/carrito";
     }
 }
 
