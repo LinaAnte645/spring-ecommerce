@@ -11,7 +11,7 @@ public class Producto {
     private String nombre;
     private String descripcion;
     private String imagen;
-    private String precio;
+    private double precio;
     private int cantidad;
     /*relacion de muchos a uno
     * crea un campo en la tabla para enviar el id del usuario
@@ -22,7 +22,7 @@ public class Producto {
     public Producto() {
     }
 
-    public Producto(Integer id, String nombre, String descripcion, String imagen, String precio, int cantidad, Usuario usuario) {
+    public Producto(Integer id, String nombre, String descripcion, String imagen, double precio, int cantidad, Usuario usuario) {
         this.id = id;
         this.nombre = nombre;
         this.descripcion = descripcion;
@@ -64,14 +64,13 @@ public class Producto {
         this.imagen = imagen;
     }
 
-    public String getPrecio() {
+    public double getPrecio() {
         return precio;
     }
 
-    public void setPrecio(String precio) {
+    public void setPrecio(double precio) {
         this.precio = precio;
     }
-
     public int getCantidad() {
         return cantidad;
     }
